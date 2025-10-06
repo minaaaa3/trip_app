@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String       @id @default(cuid())
+  email     String       @unique
+  name      String?
+  password  String?      // Auth方式によっては不要（Firebase Authならいらない）
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  lists     List[]       // ユーザーが作成した行きたいリスト
+  shared    ListShare[]  // 他人から共有されたリスト
+}
+
+model List {
+  id        String       @id @default(cuid())
+  title     String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  ownerId   String
+  owner     User         @relation(fields: [ownerId], references: [id])
+
+  items     ListItem[]
+  shares    ListShare[]
+}
+
+model ListItem {
+  id        String   @id @default(cuid())
+  name      String   // 行きたい場所の名前
+  note      String?  // 補足メモ（例:「カフェ」「絶対行きたい」）
+  createdAt DateTime @default(now())
+
+  listId    String
+  list      List     @relation(fields: [listId], references: [id])
+}
+
+model ListShare {
+  id        String   @id @default(cuid())
+  listId    String
+  userId    String
+  role      ShareRole @default(VIEWER) // 編集権限など拡張できるように
+
+  list      List @relation(fields: [listId], references: [id])
+  user      User @relation(fields: [userId], references: [id])
+}
+
+enum ShareRole {
+  OWNER
+  EDITOR
+  VIEWER
+}

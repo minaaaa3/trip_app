@@ -1,0 +1,272 @@
+openapi: 3.0.3
+info:
+  title: Travel App API
+  description: API specification for the MVP Travel Planning App, organized by category.
+  version: 1.0.0
+
+tags:
+  - name: 1. User & Authentication
+    description: Endpoints for user registration, login, and profile management.
+  - name: 2. Trips
+    description: Endpoints for managing trips.
+  - name: 3. Spots
+    description: Endpoints for managing "want-to-go" spots within a trip.
+  - name: 4. Invitations
+    description: Endpoints for inviting users to a trip.
+
+paths:
+  # Category: 1. User & Authentication
+  # ----------------------------------------------------
+  /api/auth/register:
+    post:
+      tags:
+        - 1. User & Authentication
+      summary: Register a new user
+      description: Creates a new user in the `Users` table and returns an access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, example: "Taro Yamada" }
+                email:
+                  { type: string, format: email, example: "taro@example.com" }
+                password:
+                  {
+                    type: string,
+                    format: password,
+                    example: "securepassword123",
+                  }
+      responses:
+        "201": { description: User created successfully. Returns auth token. }
+        "400": { description: Invalid input or user already exists. }
+
+  /api/auth/login:
+    post:
+      tags:
+        - 1. User & Authentication
+      summary: Log in a user
+      description: Authenticates a user and returns an access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  { type: string, format: email, example: "taro@example.com" }
+                password:
+                  {
+                    type: string,
+                    format: password,
+                    example: "securepassword123",
+                  }
+      responses:
+        "200": { description: Login successful. Returns auth token. }
+        "401": { description: Unauthorized, invalid credentials. }
+
+  /api/users/me:
+    get:
+      tags:
+        - 1. User & Authentication
+      summary: Get current user info
+      description: Retrieves the profile information of the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        "200": { description: Successful retrieval of user data. }
+        "401": { description: Unauthorized. }
+
+  # Category: 2. Trips
+  # ----------------------------------------------------
+  /api/trips:
+    get:
+      tags:
+        - 2. Trips
+      summary: Get all trips for the user
+      description: Returns a list of trips the current user is a member of.
+      security:
+        - bearerAuth: []
+      responses:
+        "200": { description: A list of trips. }
+        "401": { description: Unauthorized. }
+    post:
+      tags:
+        - 2. Trips
+      summary: Create a new trip
+      description: Creates a new trip and adds the creator as the owner.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string, example: "韓国旅行2025" }
+      responses:
+        "201": { description: Trip created successfully. }
+        "400": { description: Invalid input. }
+
+  /api/trips/{tripId}:
+    get:
+      tags:
+        - 2. Trips
+      summary: Get trip details
+      description: Returns the details of a specific trip, including its members.
+      security:
+        - bearerAuth: []
+      parameters:
+        - { name: tripId, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: Trip details. }
+        "404": { description: Trip not found. }
+    put:
+      tags:
+        - 2. Trips
+      summary: Update trip details
+      description: Updates the title of a specific trip. (Requires owner role)
+      security:
+        - bearerAuth: []
+      parameters:
+        - { name: tripId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string, example: "夏の韓国旅行" }
+      responses:
+        "200": { description: Trip updated successfully. }
+        "403": { description: Forbidden (not the owner). }
+        "404": { description: Trip not found. }
+
+  # Category: 3. Spots
+  # ----------------------------------------------------
+  /api/trips/{tripId}/spots:
+    get:
+      tags:
+        - 3. Spots
+      summary: Get all spots for a trip
+      description: Returns a list of "want-to-go" spots for a specific trip.
+      security:
+        - bearerAuth: []
+      parameters:
+        - { name: tripId, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: A list of spots. }
+        "404": { description: Trip not found. }
+    post:
+      tags:
+        - 3. Spots
+      summary: Add a new spot to a trip
+      description: Creates a new spot record associated with the trip.
+      security:
+        - bearerAuth: []
+      parameters:
+        - { name: tripId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, example: "Gyeongbok Palace" }
+                url:
+                  {
+                    type: string,
+                    format: uri,
+                    example: "https://maps.google.com/...",
+                  }
+                memo: { type: string, example: "Must-see historical site." }
+      responses:
+        "201": { description: Spot added successfully. }
+        "400": { description: Invalid input. }
+
+  /api/trips/{tripId}/spots/{spotId}:
+    put:
+      tags:
+        - 3. Spots
+      summary: Update a spot
+      description: Updates the details of a specific spot.
+      security:
+        - bearerAuth: []
+      parameters:
+        - { name: tripId, in: path, required: true, schema: { type: integer } }
+        - { name: spotId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                url: { type: string }
+                memo: { type: string }
+      responses:
+        "200": { description: Spot updated successfully. }
+        "404": { description: Spot or trip not found. }
+    delete:
+      tags:
+        - 3. Spots
+      summary: Delete a spot
+      description: Deletes a specific spot from the list.
+      security:
+        - bearerAuth: []
+      parameters:
+        - { name: tripId, in: path, required: true, schema: { type: integer } }
+        - { name: spotId, in: path, required: true, schema: { type: integer } }
+      responses:
+        "204": { description: Spot deleted successfully. }
+        "404": { description: Spot or trip not found. }
+
+  # Category: 4. Invitations
+  # ----------------------------------------------------
+  /api/trips/{tripId}/invite:
+    post:
+      tags:
+        - 4. Invitations
+      summary: Generate an invite link/code
+      description: Creates a unique invitation code for a trip.
+      security:
+        - bearerAuth: []
+      parameters:
+        - { name: tripId, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: Returns the invite code. }
+        "403": { description: Forbidden (user is not a member). }
+
+  /api/invites/{code}:
+    post:
+      tags:
+        - 4. Invitations
+      summary: Join a trip via invite code
+      description: Adds the authenticated user to the trip associated with the invite code.
+      security:
+        - bearerAuth: []
+      parameters:
+        - {
+            name: code,
+            in: path,
+            required: true,
+            schema: { type: string, example: "a1b2c3d4" },
+          }
+      responses:
+        "200": { description: Successfully joined the trip. }
+        "404": { description: Invalid invite code. }
+        "409": { description: Conflict (user is already a member). }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
