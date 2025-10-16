@@ -7,9 +7,9 @@ import prisma from "@/lib/prisma";
 export async function GET(
   // 2. request パラメータの型を 'NextRequest' に変更する
   request: NextRequest,
-  { params }: { params: { tripId: string } }
+  { params }: { params: Promise<{ tripId: string }> }
 ) {
-  const tripId = params.tripId;
+  const { tripId } = await params;
 
   if (!tripId) {
     return NextResponse.json({ error: "Trip ID is missing" }, { status: 400 });
