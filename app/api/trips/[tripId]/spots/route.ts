@@ -47,9 +47,9 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { tripId: string } }
+  { params }: { params: Promise<{ tripId: string }> }
 ) {
-  const tripId = params.tripId;
+  const { tripId } = await params;
 
   try {
     const body = await request.json();
