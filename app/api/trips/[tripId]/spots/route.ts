@@ -1,6 +1,5 @@
 // /app/api/trips/[tripId]/spots/route.ts
 
-// 1. 'next/server' から 'NextRequest' をインポートします
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
@@ -8,12 +7,12 @@ import prisma from "@/lib/prisma";
  * GET: 特定の旅行に紐づく全てのスポットを取得
  */
 export async function GET(
-  // 2. requestの型を'NextRequest'に変更します
   request: NextRequest,
-  { params }: { params: { tripId: string } }
+  { params }: { params: Promise<{ tripId: string }> }
 ) {
-  const tripId = params.tripId;
+  const { tripId } = await params;
 
+  // ↓↓↓ ここからがGET関数の処理です ↓↓↓
   try {
     const tripExists = await prisma.trip.findUnique({
       where: { id: tripId },
@@ -40,13 +39,13 @@ export async function GET(
       { status: 500 }
     );
   }
+  // ↑↑↑ GET関数はここで閉じます ↑↑↑
 }
 
 /**
  * POST: 特定の旅行に新しいスポットを追加
  */
 export async function POST(
-  // 2. こちらもrequestの型を'NextRequest'に変更します
   request: NextRequest,
   { params }: { params: { tripId: string } }
 ) {
