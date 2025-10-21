@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from ".";
 
 // グローバルスコープにPrismaClientのインスタンスを保持するための変数を宣言
 declare global {
@@ -9,7 +9,7 @@ declare global {
 // global.prismaが存在しない場合のみ新しいインスタンスを作成する
 const prisma = global.prisma || new PrismaClient();
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   global.prisma = prisma;
 }
 
