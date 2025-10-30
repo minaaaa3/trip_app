@@ -5,7 +5,7 @@ import { Spot } from "@/types";
 
 interface SpotCardProps {
   spot: Spot;
-  onDelete: (spotId: number) => void;
+  onDelete: (spotId: string) => void; // numberからstringに変更
 }
 
 export default function SpotCard({ spot, onDelete }: SpotCardProps) {
@@ -41,7 +41,7 @@ export default function SpotCard({ spot, onDelete }: SpotCardProps) {
         </button>
       </div>
       <div className="text-xs text-gray-400 mt-2">
-        追加日: {spot.created_at}
+        追加日: {spot.createdAt.toLocaleDateString()}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Users, MapPin } from "lucide-react";
+import { Plus, MapPin } from "lucide-react";
 import { Trip, Spot } from "@/types";
 import SpotCard from "@/components/SpotCard";
 import AddSpotForm from "@/components/AddSpotForm";
@@ -20,21 +20,20 @@ export default function TripDetailClient({
   const [isAddingSpot, setIsAddingSpot] = useState(false);
 
   const handleAddSpot = (
-    newSpotData: Omit<Spot, "id" | "created_by" | "created_at" | "updated_at">
+    newSpotData: Pick<Spot, "tripId" | "name" | "url" | "memo">
   ) => {
-    // TODO: APIを呼び出してデータベースに保存
+    // 注: この部分は実際のAPIを使用するように変更する必要があります
     const newSpot: Spot = {
       ...newSpotData,
-      id: Math.max(0, ...spots.map((s) => s.id)) + 1,
-      created_by: 1, // TODO: 実際のユーザーIDを使用
-      created_at: new Date().toISOString().split("T")[0],
+      id: Date.now().toString(), // 一時的なID生成
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
-    setSpots([...spots, newSpot]);
+    setSpots([newSpot, ...spots]);
     setIsAddingSpot(false);
   };
 
-  const handleDeleteSpot = (spotId: number) => {
-    // TODO: APIを呼び出してデータベースから削除
+  const handleDeleteSpot = (spotId: string) => {
     setSpots(spots.filter((s) => s.id !== spotId));
   };
 
@@ -43,7 +42,7 @@ export default function TripDetailClient({
       <div className="max-w-4xl mx-auto">
         <Link
           href="/"
-          className="mb-4 text-indigo-600 hover:text-indigo-800  items-center gap-1 inline-block"
+          className="mb-4 text-indigo-600 hover:text-indigo-800 items-center gap-1 inline-block"
         >
           ← 旅行一覧に戻る
         </Link>
@@ -52,9 +51,8 @@ export default function TripDetailClient({
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             {trip.title}
           </h1>
-          <div className="flex items-center gap-2 text-gray-600">
-            <Users size={18} />
-            <span>{trip.member_count || 0}人のメンバー</span>
+          <div className="text-gray-600">
+            作成日: {trip.createdAt.toLocaleDateString()}
           </div>
         </div>
 

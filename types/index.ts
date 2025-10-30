@@ -1,21 +1,16 @@
 export interface Trip {
-  id: number;
+  id: string;
   title: string;
-  created_by: number;
-  created_at: string;
-  updated_at?: string;
-  member_count?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Spot {
-  id: number;
-  trip_id: number;
+  id: string;
+  tripId: string;
   name: string;
   url?: string;
   memo?: string;
-  lat?: number;
-  lng?: number;
-  created_by: number;
-  created_at: string;
-  updated_at?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

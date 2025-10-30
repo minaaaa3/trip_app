@@ -4,10 +4,8 @@ import { useState } from "react";
 import { Spot } from "@/types";
 
 interface AddSpotFormProps {
-  tripId: number;
-  onAdd: (
-    spot: Omit<Spot, "id" | "created_by" | "created_at" | "updated_at">
-  ) => void;
+  tripId: string; // numberからstringに変更
+  onAdd: (spot: Pick<Spot, "tripId" | "name" | "url" | "memo">) => void;
   onCancel: () => void;
 }
 
@@ -26,7 +24,7 @@ export default function AddSpotForm({
     e.preventDefault();
     if (formData.name.trim()) {
       onAdd({
-        trip_id: tripId,
+        tripId,
         name: formData.name,
         url: formData.url || undefined,
         memo: formData.memo || undefined,

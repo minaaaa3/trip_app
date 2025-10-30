@@ -1,57 +1,98 @@
 import { Trip, Spot } from "@/types";
 
-export const mockTrips: Trip[] = [
-  {
-    id: 1,
-    title: "韓国旅行2025",
-    created_by: 1,
-    created_at: "2025-01-15",
-    member_count: 3,
-  },
-  {
-    id: 2,
-    title: "沖縄夏休み",
-    created_by: 1,
-    created_at: "2025-02-01",
-    member_count: 5,
-  },
-];
-
-export const mockSpots: Record<number, Spot[]> = {
-  1: [
-    {
-      id: 1,
-      trip_id: 1,
-      name: "景福宮",
-      url: "https://maps.google.com",
-      memo: "朝一番に訪問したい。チマチョゴリレンタルも検討",
-      created_by: 1,
-      created_at: "2025-01-16",
-    },
-    {
-      id: 2,
-      trip_id: 1,
-      name: "ホンデのサムギョプサル店",
-      url: "https://tabelog.com",
-      memo: "友達おすすめのお店。予約必須らしい",
-      created_by: 2,
-      created_at: "2025-01-17",
-    },
-  ],
-  2: [],
-};
+// baseURLの設定
+const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 export async function getTrips(): Promise<Trip[]> {
-  // TODO: データベースから取得
-  return mockTrips;
+  const response = await fetch(`${baseURL}/api/trips`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch trips");
+  }
+  return response.json();
 }
 
 export async function getTripById(id: number): Promise<Trip | undefined> {
-  // TODO: データベースから取得
-  return mockTrips.find((t) => t.id === id);
+  const response = await fetch(`${baseURL}/api/trips/${id}`);
+  if (response.status === 404) {
+    return undefined;
+  }
+  if (!response.ok) {
+    throw new Error("Failed to fetch trip");
+  }
+  return response.json();
 }
 
 export async function getSpotsByTripId(tripId: number): Promise<Spot[]> {
-  // TODO: データベースから取得
-  return mockSpots[tripId] || [];
+  const response = await fetch(`${baseURL}/api/trips/${tripId}/spots`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch spots");
+  }
+  return response.json();
+}
+
+export async function createTrip(title: string): Promise<Trip> {
+  const response = await fetch(`${baseURL}/api/trips`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ title }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to create trip");
+  }
+  return response.json();
+}
+
+export async function createSpot(
+  tripId: number,
+  data: { name: string; url?: string; memo?: string }
+): Promise<Spot> {
+  const response = await fetch(`${baseURL}/api/trips/${tripId}/spots`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to create spot");
+  }
+  return response.json();
+}
+
+export async function updateSpot(
+  tripId: number,
+  spotId: number,
+  data: { name?: string; url?: string; memo?: string }
+): Promise<Spot> {
+  const response = await fetch(
+    `${baseURL}/api/trips/${tripId}/spots/${spotId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to update spot");
+  }
+  return response.json();
+}
+
+export async function deleteSpot(
+  tripId: number,
+  spotId: number
+): Promise<void> {
+  const response = await fetch(
+    `${baseURL}/api/trips/${tripId}/spots/${spotId}`,
+    {
+      method: "DELETE",
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to delete spot");
+  }
 }
