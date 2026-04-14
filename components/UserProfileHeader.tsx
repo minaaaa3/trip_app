@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User, Edit2, Check, X, Settings } from "lucide-react";
+import { User, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
