@@ -3,6 +3,8 @@ import TripDetailClient from "./TripDetailClient";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{
     tripId: string;
