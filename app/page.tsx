@@ -7,11 +7,11 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const session = await auth();
 
-  let initialTrips: any[] = [];
+  let initialTrips: Trip[] = [];
 
   if (session?.user?.id) {
     // 自分がメンバーである旅行を直接取得し、作成日順にソート
-    initialTrips = await prisma.trip.findMany({
+    const memberTrips = await prisma.trip.findMany({
       where: {
         members: {
           some: {
@@ -30,6 +30,7 @@ export default async function HomePage() {
         createdAt: "desc",
       },
     });
+    initialTrips = memberTrips as unknown as Trip[];
   }
 
   // Trip型への変換

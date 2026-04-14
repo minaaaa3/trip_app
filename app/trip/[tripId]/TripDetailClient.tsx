@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Plus, MapPin, Share2, Copy, RefreshCw, Users, Calendar, Clock, Wallet, ArrowRight, Trash2, ChevronLeft } from "lucide-react";
+import { Plus, MapPin, Share2, Copy, RefreshCw, Clock, Wallet, ArrowRight, Trash2, ChevronLeft } from "lucide-react";
 import { Trip, Spot, Expense } from "@/types";
 import SpotCard from "@/components/SpotCard";
 import AddSpotForm from "@/components/AddSpotForm";
@@ -13,7 +13,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 
 interface TripDetailClientProps {
   trip: Trip & {
