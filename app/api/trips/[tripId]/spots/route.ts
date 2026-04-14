@@ -1,7 +1,6 @@
-// /app/api/trips/[tripId]/spots/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { auth } from "@/auth";
 
 /**
  * GET: 特定の旅行に紐づく全てのスポットを取得
@@ -12,23 +11,35 @@ export async function GET(
 ) {
   const { tripId } = await params;
 
-  // ↓↓↓ ここからがGET関数の処理です ↓↓↓
   try {
-    const tripExists = await prisma.trip.findUnique({
-      where: { id: tripId },
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // メンバーチェック
+    const membership = await prisma.tripMember.findUnique({
+      where: {
+        tripId_userId: {
+          tripId: tripId,
+          userId: session.user.id,
+        },
+      },
     });
 
-    if (!tripExists) {
-      return NextResponse.json({ error: "Trip not found" }, { status: 404 });
+    if (!membership) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const spots = await prisma.spot.findMany({
       where: {
         tripId: tripId,
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: [
+        { day: "asc" },
+        { order: "asc" },
+        { createdAt: "desc" },
+      ],
     });
 
     return NextResponse.json(spots, { status: 200 });
@@ -39,7 +50,6 @@ export async function GET(
       { status: 500 }
     );
   }
-  // ↑↑↑ GET関数はここで閉じます ↑↑↑
 }
 
 /**
@@ -52,19 +62,30 @@ export async function POST(
   const { tripId } = await params;
 
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { name, url, memo } = body;
+    const { name, url, memo, day } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    const tripExists = await prisma.trip.findUnique({
-      where: { id: tripId },
+    // メンバーチェック
+    const membership = await prisma.tripMember.findUnique({
+      where: {
+        tripId_userId: {
+          tripId: tripId,
+          userId: session.user.id,
+        },
+      },
     });
 
-    if (!tripExists) {
-      return NextResponse.json({ error: "Trip not found" }, { status: 404 });
+    if (!membership) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const newSpot = await prisma.spot.create({
@@ -72,6 +93,7 @@ export async function POST(
         name,
         url,
         memo,
+        day: day ? parseInt(day) : null,
         tripId: tripId,
       },
     });

@@ -17,7 +17,13 @@ export default function TripCard({ trip }: TripCardProps) {
         <div className="flex items-center gap-4 text-sm text-gray-600">
           <div className="flex items-center gap-1">
             <Calendar size={16} />
-            <span>{createdDate.toLocaleDateString()}</span>
+            <span>
+              {createdDate.toLocaleDateString("ja-JP", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
+            </span>
           </div>
         </div>
       </div>

@@ -8,13 +8,115 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Trip {
-  id        String   @id @default(cuid())
-  title     String
+model User {
+  id             String               @id @default(cuid())
+  name           String?
+  email          String               @unique
+  emailVerified  DateTime?
+  image          String?
+  accounts       Account[]
+  sessions       Session[]
+  trips          TripMember[]
+  expenses       Expense[]            @relation("PaidExpenses")
+  participations ExpenseParticipant[]
+  photos         Photo[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  spots Spot[]
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+model TripMember {
+  tripId String
+  userId String
+  role   Role   @default(MEMBER)
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([tripId, userId])
+}
+
+model Trip {
+  id          String   @id @default(cuid())
+  title       String
+  inviteToken String?  @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members  TripMember[]
+  spots    Spot[]
+  expenses Expense[]
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  amount      Float
+  description String
+  date        DateTime @default(now())
+
+  tripId String
+  trip   Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  paidById String
+  paidBy   User   @relation("PaidExpenses", fields: [paidById], references: [id], onDelete: Cascade)
+
+  participants ExpenseParticipant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ExpenseParticipant {
+  expenseId String
+  userId    String
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([expenseId, userId])
 }
 
 model Spot {
@@ -22,9 +124,28 @@ model Spot {
   name      String
   memo      String?
   url       String?
+  day       Int?
+  order     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   tripId String
-  trip   Trip   @relation(fields: [tripId], references: [id])
+  trip   Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  photos Photo[]
+}
+
+model Photo {
+  id      String  @id @default(cuid())
+  url     String  @db.Text
+  caption String?
+
+  spotId String
+  spot   Spot   @relation(fields: [spotId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
