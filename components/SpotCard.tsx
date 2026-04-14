@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Link as LinkIcon, Calendar, Trash2, Image as ImageIcon, Plus, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Link as LinkIcon, Trash2, Image as ImageIcon, Plus, X } from "lucide-react";
 import { Spot, Photo } from "@/types";
 
 interface SpotCardProps {
@@ -143,6 +143,7 @@ export default function SpotCard({ spot, onDelete }: SpotCardProps) {
                   className="relative min-w-[80px] h-20 rounded-xl overflow-hidden cursor-pointer hover:ring-2 hover:ring-indigo-500 transition-all group/photo"
                   onClick={() => setSelectedPhoto(photo)}
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={photo.url}
                     alt=""
@@ -175,6 +176,7 @@ export default function SpotCard({ spot, onDelete }: SpotCardProps) {
             >
               閉じる <X size={24} />
             </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={selectedPhoto.url}
               alt=""
