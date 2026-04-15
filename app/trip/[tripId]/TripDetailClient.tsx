@@ -58,31 +58,58 @@ export default function TripDetailClient({
       });
     });
 
-    const creditors = Object.entries(balances).filter(([_, bal]) => bal > 0.01).sort(([_, a], [__, b]) => b - a);
-    const debtors = Object.entries(balances).filter(([_, bal]) => bal < -0.01).map(([id, bal]) => [id, Math.abs(bal)] as [string, number]).sort(([_, a], [__, b]) => b - a);
+    const creditors = Object.entries(balances)
+      .filter(([, bal]) => bal > 0.01)
+      .sort(([, a], [, b]) => b - a);
+    const debtors = Object.entries(balances)
+      .filter(([, bal]) => bal < -0.01)
+      .map(([id, bal]) => [id, Math.abs(bal)] as [string, number])
+      .sort(([, a], [, b]) => b - a);
 
     const results: { from: string; to: string; amount: number }[] = [];
-    let cIdx = 0, dIdx = 0;
+    
+    let cIdx = 0;
+    let dIdx = 0;
+
     while (cIdx < creditors.length && dIdx < debtors.length) {
-      const [cId, cAmount] = creditors[cIdx], [dId, dAmount] = debtors[dIdx];
+      const [cId, cAmount] = creditors[cIdx];
+      const [dId, dAmount] = debtors[dIdx];
+      
       const settlementAmount = Math.min(cAmount, dAmount);
-      results.push({ from: dId, to: cId, amount: Math.round(settlementAmount) });
+      results.push({
+        from: dId,
+        to: cId,
+        amount: Math.round(settlementAmount)
+      });
+
       creditors[cIdx][1] -= settlementAmount;
       debtors[dIdx][1] -= settlementAmount;
+
       if (creditors[cIdx][1] < 0.01) cIdx++;
       if (debtors[dIdx][1] < 0.01) dIdx++;
     }
     return results;
   }, [expenses, trip.members]);
 
-  const maxDay = useMemo(() => Math.max(3, ...spots.map(s => s.day || 0)), [spots]);
-  const days = useMemo(() => Array.from({ length: maxDay }, (_, i) => i + 1), [maxDay]);
+  const maxDay = useMemo(() => {
+    const daysInSpots = spots.map(s => s.day || 0);
+    return Math.max(3, ...daysInSpots);
+  }, [spots]);
+
+  const days = useMemo(() => {
+    const d = [];
+    for (let i = 1; i <= maxDay; i++) d.push(i);
+    return d;
+  }, [maxDay]);
+
   const filteredSpots = useMemo(() => {
     if (activeDay === "all") return spots;
     return spots.filter(s => (s.day || 0) === (activeDay === 0 ? 0 : activeDay));
   }, [spots, activeDay]);
 
-  const handleAddSpot = async (newSpotData: any) => {
+  const handleAddSpot = async (
+    newSpotData: Pick<Spot, "tripId" | "name" | "url" | "memo" | "day">
+  ) => {
     try {
       const res = await fetch(`/api/trips/${trip.id}/spots`, {
         method: "POST",
@@ -100,7 +127,12 @@ export default function TripDetailClient({
     } catch (error) { console.error(error); }
   };
 
-  const handleAddExpense = async (data: any) => {
+  const handleAddExpense = async (data: {
+    amount: number;
+    description: string;
+    paidById: string;
+    participantIds: string[];
+  }) => {
     try {
       const res = await fetch(`/api/trips/${trip.id}/expenses`, {
         method: "POST",

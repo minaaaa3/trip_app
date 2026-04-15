@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import HomePageClient from "@/components/HomePageClient";
+import { Trip } from "@/types";
 
 export const dynamic = "force-dynamic";
 

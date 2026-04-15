@@ -50,7 +50,7 @@ export async function PUT(
         id: spotId,
         tripId: tripId, // 安全のためtripIdも条件に含める
       },
-      data: dataToUpdate,
+      data: dataToUpdate as any,
     });
 
     return NextResponse.json(updatedSpot, { status: 200 });
@@ -68,9 +68,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ tripId: string; spotId: string }> }
 ) {
-  const { tripId, spotId } = await params;
-
   try {
+    const { tripId, spotId } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
