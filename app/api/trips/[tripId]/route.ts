@@ -3,7 +3,7 @@
 // 1. 'next/server' から 'NextRequest' をインポートする
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { Prisma } from "@/lib";
+import { Prisma } from "@prisma/client";
 
 export async function GET(
   // 2. request パラメータの型を 'NextRequest' に変更する

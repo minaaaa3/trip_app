@@ -1,4 +1,4 @@
-import { PrismaClient } from "../lib";
+import { PrismaClient } from "@prisma/client";
 
 // PrismaClientのインスタンスを作成
 const prisma = new PrismaClient();

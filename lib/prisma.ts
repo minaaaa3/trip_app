@@ -1,4 +1,4 @@
-import { PrismaClient } from ".";
+import { PrismaClient } from "@prisma/client";
 
 // グローバルスコープにPrismaClientのインスタンスを保持するための変数を宣言
 declare global {
