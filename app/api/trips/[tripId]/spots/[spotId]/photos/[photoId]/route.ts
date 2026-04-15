@@ -6,7 +6,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ tripId: string; spotId: string; photoId: string }> }
 ) {
-  const { tripId, spotId, photoId } = await params;
+  const { photoId } = await params;
 
   try {
     const session = await auth();

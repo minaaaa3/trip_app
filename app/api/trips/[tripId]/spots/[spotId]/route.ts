@@ -35,7 +35,7 @@ export async function PUT(
     const body = await request.json();
     const { name, url, memo, day } = body;
 
-    const dataToUpdate: any = {};
+    const dataToUpdate: Record<string, unknown> = {};
     if (name !== undefined) dataToUpdate.name = name;
     if (url !== undefined) dataToUpdate.url = url;
     if (memo !== undefined) dataToUpdate.memo = memo;
@@ -50,7 +50,7 @@ export async function PUT(
         id: spotId,
         tripId: tripId, // 安全のためtripIdも条件に含める
       },
-      data: dataToUpdate as any,
+      data: dataToUpdate as { name?: string; url?: string | null; memo?: string | null; day?: number | null },
     });
 
     return NextResponse.json(updatedSpot, { status: 200 });
