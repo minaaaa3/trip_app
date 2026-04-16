@@ -31,6 +31,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // ログイン後はトップページに飛ばす
+      return baseUrl;
+    },
   },
   secret: process.env.AUTH_SECRET,
   trustHost: true,

@@ -28,6 +28,7 @@ export default function LoginPage() {
         </div>
 
         <form action={loginAction} className="space-y-6">
+          <input type="hidden" name="callbackUrl" value="/" />
           <div>
             <label
               htmlFor="email"
