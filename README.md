@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Trip App ✈️
 
-## Getting Started
+旅行の計画を立て、スポットを管理し、旅費の精算を簡単に行うためのトラベル管理アプリケーションです。
 
-First, run the development server:
+## 🌐 デプロイ情報
+このプロジェクトは **Vercel** にデプロイされています。
+- **URL:** [https://trip-app-kpck.vercel.app](https://trip-app-kpck.vercel.app)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ 主な機能
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **マジックリンクログイン**: パスワード不要。メールアドレスだけで安全にログインできます。
+- **旅行プラン作成**: 行きたい場所（スポット）を登録し、旅行の行程を視覚的に管理。
+- **スポット詳細管理**: メモ、URL、写真の追加が可能。
+- **旅費精算（割り勘）**: 誰がいくら払ったかを記録し、メンバー間での精算をサポート。
+- **招待機能**: 共有リンクを使って、友達や家族を同じ旅行プランに招待。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠 技術スタック
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Frontend**: Next.js 15+ (App Router), TypeScript, Tailwind CSS
+- **Authentication**: Auth.js (NextAuth.js v5)
+- **Database**: PostgreSQL (Prisma ORM)
+- **Deployment**: Vercel
+- **Email**: Nodemailer (Gmail SMTP)
 
-## Learn More
+## 🚀 ローカル開発セットアップ
 
-To learn more about Next.js, take a look at the following resources:
+1.  **リポジトリのクローン:**
+    ```bash
+    git clone <repository-url>
+    cd trip-app
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2.  **依存関係のインストール:**
+    ```bash
+    npm install
+    # または
+    pnpm install
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3.  **環境変数の設定:**
+    `.env` ファイルを作成し、以下の項目を設定してください。
 
-## Deploy on Vercel
+    ```env
+    # Database
+    DATABASE_URL="postgresql://user:password@localhost:5432/tripapp"
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    # Next Auth
+    AUTH_SECRET="your-random-secret"
+    AUTH_TRUST_HOST=true
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    # Email (Gmail)
+    EMAIL_SERVER_USER="your-gmail@gmail.com"
+    EMAIL_SERVER_PASSWORD="your-app-password"
+    EMAIL_FROM="your-gmail@gmail.com"
+    ```
+
+4.  **データベースの同期:**
+    ```bash
+    npx prisma migrate dev
+    ```
+
+5.  **開発サーバーの起動:**
+    ```bash
+    npm run dev
+    ```
+
+## 📝 Vercel へのデプロイ手順
+
+1. Vercel ダッシュボードで新しいプロジェクトを作成。
+2. 上記の環境変数を設定。
+   - `AUTH_TRUST_HOST` は必ず `true` に設定してください。
+   - `EMAIL_SERVER_PASSWORD` は、Gmailの「アプリパスワード」を使用してください。
+3. `npx prisma generate` をビルドコマンドに含める（現在の設定で自動化済み）。
+
+---
+Built with ❤️ for better travel experiences.
