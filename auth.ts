@@ -5,9 +5,6 @@ import Nodemailer from "next-auth/providers/nodemailer";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: {
-    strategy: "database",
-  },
   providers: [
     Nodemailer({
       server: {
@@ -24,8 +21,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/login",
   },
-  // 本番環境のエラーログを確認しやすくするため、一時的にtrueに設定
-  debug: true,
   callbacks: {
     async session({ session, user }) {
       if (session.user && user) {
@@ -33,11 +28,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
-      // ログイン後は必ずトップページにリダイレクトさせる
-      return baseUrl;
-    },
   },
   secret: process.env.AUTH_SECRET,
   trustHost: true,
+  debug: true,
 });

@@ -3,6 +3,21 @@ import { Button } from "@/components/ui/button";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export default function LoginPage() {
+  async function loginAction(formData: FormData) {
+    "use server";
+    try {
+      const email = formData.get("email") as string;
+      if (!email) return;
+      await signIn("nodemailer", { email, callbackUrl: "/" });
+    } catch (error) {
+      if (isRedirectError(error)) {
+        throw error;
+      }
+      console.error("Sign in error:", error);
+      throw error;
+    }
+  }
+
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-64px)] p-6">
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
@@ -13,21 +28,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form
-          action={async (formData) => {
-            "use server";
-            try {
-              await signIn("nodemailer", formData);
-            } catch (error) {
-              if (isRedirectError(error)) {
-                throw error;
-              }
-              console.error("Sign in error:", error);
-              throw error;
-            }
-          }}
-          className="space-y-6"
-        >
+        <form action={loginAction} className="space-y-6">
           <div>
             <label
               htmlFor="email"
