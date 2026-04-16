@@ -27,12 +27,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // 本番環境のエラーログを確認しやすくするため、一時的にtrueに設定
   debug: true,
   callbacks: {
-    session({ session, user }) {
-      if (session.user) {
+    async session({ session, user }) {
+      if (session.user && user) {
         session.user.id = user.id;
-        session.user.name = user.name;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // ログイン後のURLがbaseUrl（サイトURL）を含む場合はそのURLへ、それ以外はトップページへ
+      if (url.startsWith(baseUrl)) return url;
+      else if (url.startsWith("/")) return new URL(url, baseUrl).toString();
+      return baseUrl;
     },
   },
   secret: process.env.AUTH_SECRET,
