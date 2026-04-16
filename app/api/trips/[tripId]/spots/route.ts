@@ -68,7 +68,7 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { name, url, memo, day } = body;
+    const { name, category, url, memo, day } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -91,10 +91,14 @@ export async function POST(
     const newSpot = await prisma.spot.create({
       data: {
         name,
+        category: category ?? "SIGHTSEEING",
         url,
         memo,
-        day: day ? parseInt(day) : null,
+        day: (day !== undefined && day !== null) ? parseInt(day) : null,
         tripId: tripId,
+      },
+      include: {
+        photos: true,
       },
     });
 

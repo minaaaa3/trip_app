@@ -1,18 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Link as LinkIcon, Trash2, Image as ImageIcon, Plus, X } from "lucide-react";
+import { MapPin, Link as LinkIcon, Trash2, Image as ImageIcon, Plus, X, Edit2, Utensils, Bed, Train, MoreHorizontal } from "lucide-react";
 import { Spot, Photo } from "@/types";
+import SpotForm from "./SpotForm";
 
 interface SpotCardProps {
   spot: Spot;
   onDelete: (id: string) => void;
+  onUpdate: (id: string, data: Partial<Spot>) => Promise<void>;
 }
 
-export default function SpotCard({ spot, onDelete }: SpotCardProps) {
+const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string; bgColor: string }> = {
+  SIGHTSEEING: { label: "観光", icon: MapPin, color: "text-indigo-600", bgColor: "bg-indigo-100" },
+  RESTAURANT: { label: "食事", icon: Utensils, color: "text-orange-600", bgColor: "bg-orange-100" },
+  HOTEL: { label: "宿泊", icon: Bed, color: "text-emerald-600", bgColor: "bg-emerald-100" },
+  TRANSPORT: { label: "移動", icon: Train, color: "text-blue-600", bgColor: "bg-blue-100" },
+  OTHER: { label: "その他", icon: MoreHorizontal, color: "text-gray-600", bgColor: "bg-gray-100" },
+};
+
+export default function SpotCard({ spot, onDelete, onUpdate }: SpotCardProps) {
   const [photos, setPhotos] = useState<Photo[]>(spot.photos || []);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const config = CATEGORY_CONFIG[spot.category] || CATEGORY_CONFIG.SIGHTSEEING;
+  const CategoryIcon = config.icon;
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,6 +64,11 @@ export default function SpotCard({ spot, onDelete }: SpotCardProps) {
     }
   };
 
+  const handleUpdate = async (data: Partial<Spot>) => {
+    await onUpdate(spot.id, data);
+    setIsEditing(false);
+  };
+
   const handleDeletePhoto = async (e: React.MouseEvent, photoId: string) => {
     e.stopPropagation();
     if (!confirm("この写真を削除しますか？")) return;
@@ -66,16 +85,33 @@ export default function SpotCard({ spot, onDelete }: SpotCardProps) {
     }
   };
 
+  if (isEditing) {
+    return (
+      <SpotForm
+        tripId={spot.tripId}
+        initialData={spot}
+        mode="edit"
+        onSubmit={handleUpdate}
+        onCancel={() => setIsEditing(false)}
+      />
+    );
+  }
+
   return (
     <div className="bg-white rounded-3xl shadow-md border border-transparent hover:border-indigo-100 transition-all group overflow-hidden">
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <div className="bg-indigo-100 p-1.5 rounded-lg text-indigo-600">
-                <MapPin size={18} />
+              <div className={`${config.bgColor} ${config.color} p-1.5 rounded-lg`}>
+                <CategoryIcon size={18} />
               </div>
-              <h3 className="text-xl font-black text-gray-800">{spot.name}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-black text-gray-800">{spot.name}</h3>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${config.bgColor} ${config.color} uppercase tracking-tight`}>
+                  {config.label}
+                </span>
+              </div>
             </div>
             {spot.memo && (
               <p className="text-gray-500 text-sm mt-2 ml-1 line-clamp-2">
@@ -83,12 +119,22 @@ export default function SpotCard({ spot, onDelete }: SpotCardProps) {
               </p>
             )}
           </div>
-          <button
-            onClick={() => onDelete(spot.id)}
-            className="text-gray-300 hover:text-red-500 p-2 transition-colors"
-          >
-            <Trash2 size={18} />
-          </button>
+          <div className="flex gap-1">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-gray-300 hover:text-indigo-500 p-2 transition-colors"
+              title="編集"
+            >
+              <Edit2 size={18} />
+            </button>
+            <button
+              onClick={() => onDelete(spot.id)}
+              className="text-gray-300 hover:text-red-500 p-2 transition-colors"
+              title="削除"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
         </div>
 
         {spot.url && (

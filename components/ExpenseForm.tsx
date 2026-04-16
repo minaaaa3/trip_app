@@ -3,42 +3,55 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
+import { Expense } from "@/types";
 
 interface ExpenseFormProps {
   members: { userId: string; user: { email: string; name?: string | null } }[];
   currentUserId?: string;
-  onAdd: (data: {
+  initialData?: Expense;
+  onSubmit: (data: {
     amount: number;
     description: string;
     paidById: string;
     participantIds: string[];
   }) => void;
   onCancel: () => void;
+  mode?: "add" | "edit";
 }
 
 export default function ExpenseForm({
   members,
   currentUserId,
-  onAdd,
+  initialData,
+  onSubmit,
   onCancel,
+  mode = "add",
 }: ExpenseFormProps) {
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
-  const [paidById, setPaidById] = useState(currentUserId || members[0]?.userId || "");
+  const [amount, setAmount] = useState(initialData?.amount?.toString() || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [paidById, setPaidById] = useState(initialData?.paidById || currentUserId || members[0]?.userId || "");
   const [participantIds, setParticipantIds] = useState<string[]>(
-    members.map((m) => m.userId)
+    initialData?.participants.map(p => p.userId) || members.map((m) => m.userId)
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !description || !paidById || participantIds.length === 0) return;
 
-    onAdd({
-      amount: parseFloat(amount),
-      description,
-      paidById,
-      participantIds,
-    });
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        amount: parseFloat(amount),
+        description,
+        paidById,
+        participantIds,
+      });
+    } catch (error) {
+      console.error("Expense form submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const toggleParticipant = (userId: string) => {
@@ -50,8 +63,10 @@ export default function ExpenseForm({
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-indigo-100 mb-6">
-      <h3 className="text-lg font-bold text-gray-800 mb-4">費用を追加する</h3>
+    <div className={`bg-white rounded-2xl p-6 shadow-md border-2 ${mode === "edit" ? "border-indigo-100" : "border-indigo-100"} mb-6`}>
+      <h3 className="text-lg font-bold text-gray-800 mb-4">
+        {mode === "edit" ? "費用を編集する" : "費用を追加する"}
+      </h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -117,8 +132,8 @@ export default function ExpenseForm({
         </div>
 
         <div className="flex gap-2 pt-2">
-          <Button type="submit" className="flex-1 py-6 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold">
-            追加する
+          <Button type="submit" disabled={isSubmitting} className="flex-1 py-6 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold">
+            {isSubmitting ? "保存中..." : mode === "edit" ? "更新する" : "追加する"}
           </Button>
           <Button type="button" variant="outline" onClick={onCancel} className="px-6 py-6 border-gray-200 rounded-xl">
             キャンセル

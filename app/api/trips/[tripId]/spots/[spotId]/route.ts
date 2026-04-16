@@ -33,13 +33,20 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, url, memo, day } = body;
+    const { name, category, url, memo, day } = body;
 
     const dataToUpdate: Record<string, unknown> = {};
     if (name !== undefined) dataToUpdate.name = name;
+    if (category !== undefined && category !== null) {
+      dataToUpdate.category = category;
+    }
     if (url !== undefined) dataToUpdate.url = url;
     if (memo !== undefined) dataToUpdate.memo = memo;
-    if (day !== undefined) dataToUpdate.day = day ? parseInt(day) : null;
+    if (day !== undefined && day !== null) {
+      dataToUpdate.day = parseInt(day);
+    } else if (day === null) {
+      dataToUpdate.day = null;
+    }
 
     if (Object.keys(dataToUpdate).length === 0) {
       return NextResponse.json({ error: "No fields to update" }, { status: 400 });
@@ -50,7 +57,10 @@ export async function PUT(
         id: spotId,
         tripId: tripId, // 安全のためtripIdも条件に含める
       },
-      data: dataToUpdate as { name?: string; url?: string | null; memo?: string | null; day?: number | null },
+      data: dataToUpdate as { name?: string; category?: string; url?: string | null; memo?: string | null; day?: number | null },
+      include: {
+        photos: true,
+      },
     });
 
     return NextResponse.json(updatedSpot, { status: 200 });

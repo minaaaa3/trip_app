@@ -13,6 +13,7 @@ export interface Spot {
   id: string;
   tripId: string;
   name: string;
+  category: string;
   url?: string | null;
   memo?: string | null;
   day?: number | null;

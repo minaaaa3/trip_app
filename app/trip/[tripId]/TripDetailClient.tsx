@@ -2,10 +2,10 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Plus, MapPin, Share2, Copy, RefreshCw, Clock, Wallet, ArrowRight, Trash2, ChevronLeft } from "lucide-react";
+import { Plus, MapPin, Share2, Copy, RefreshCw, Clock, Wallet, ArrowRight, Trash2, ChevronLeft, Edit2 } from "lucide-react";
 import { Trip, Spot, Expense } from "@/types";
 import SpotCard from "@/components/SpotCard";
-import AddSpotForm from "@/components/AddSpotForm";
+import SpotForm from "@/components/SpotForm";
 import ExpenseForm from "@/components/ExpenseForm";
 import { Session } from "next-auth";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ export default function TripDetailClient({
   const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
   const [isAddingSpot, setIsAddingSpot] = useState(false);
   const [isAddingExpense, setIsAddingExpense] = useState(false);
+  const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
   const [isCopying, setIsCopying] = useState(false);
   const [isGeneratingToken, setIsGeneratingToken] = useState(false);
   
@@ -108,13 +109,13 @@ export default function TripDetailClient({
   }, [spots, activeDay]);
 
   const handleAddSpot = async (
-    newSpotData: Pick<Spot, "tripId" | "name" | "url" | "memo" | "day">
+    newSpotData: Partial<Spot>
   ) => {
     try {
       const res = await fetch(`/api/trips/${trip.id}/spots`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newSpotData),
+        body: JSON.stringify({ ...newSpotData, tripId: trip.id }),
       });
       if (res.ok) {
         const savedSpot = await res.json();
@@ -123,8 +124,33 @@ export default function TripDetailClient({
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         }));
         setIsAddingSpot(false);
+      } else {
+        const errorData = await res.json();
+        alert(`追加に失敗しました: ${errorData.error || "不明なエラー"}`);
       }
-    } catch (error) { console.error(error); }
+    } catch (error) { 
+      console.error(error);
+      alert("通信エラーが発生しました。");
+    }
+  };
+
+  const handleUpdateSpot = async (spotId: string, updatedData: Partial<Spot>) => {
+    try {
+      const res = await fetch(`/api/trips/${trip.id}/spots/${spotId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+      if (res.ok) {
+        const updatedSpot = await res.json();
+        setSpots(prev => prev.map(s => s.id === spotId ? updatedSpot : s).sort((a, b) => {
+          if ((a.day || 0) !== (b.day || 0)) return (a.day || 0) - (b.day || 0);
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }));
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleAddExpense = async (data: {
@@ -143,6 +169,26 @@ export default function TripDetailClient({
         const savedExpense = await res.json();
         setExpenses(prev => [savedExpense, ...prev]);
         setIsAddingExpense(false);
+      }
+    } catch (error) { console.error(error); }
+  };
+
+  const handleUpdateExpense = async (expenseId: string, data: {
+    amount: number;
+    description: string;
+    paidById: string;
+    participantIds: string[];
+  }) => {
+    try {
+      const res = await fetch(`/api/trips/${trip.id}/expenses/${expenseId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        const updatedExpense = await res.json();
+        setExpenses(prev => prev.map(e => e.id === expenseId ? updatedExpense : e));
+        setEditingExpenseId(null);
       }
     } catch (error) { console.error(error); }
   };
@@ -310,7 +356,7 @@ export default function TripDetailClient({
 
             {isAddingSpot && (
               <div className="mb-8">
-                <AddSpotForm tripId={trip.id} onAdd={handleAddSpot} onCancel={() => setIsAddingSpot(false)} defaultDay={activeDay === "all" ? 0 : activeDay} />
+                <SpotForm tripId={trip.id} onSubmit={handleAddSpot} onCancel={() => setIsAddingSpot(false)} defaultDay={activeDay === "all" ? 0 : activeDay} />
               </div>
             )}
 
@@ -322,7 +368,7 @@ export default function TripDetailClient({
                 </Card>
               ) : (
                 filteredSpots.map((spot) => (
-                  <SpotCard key={spot.id} spot={spot} onDelete={handleDeleteSpot} />
+                  <SpotCard key={spot.id} spot={spot} onDelete={handleDeleteSpot} onUpdate={handleUpdateSpot} />
                 ))
               )}
             </div>
@@ -339,7 +385,7 @@ export default function TripDetailClient({
             </div>
 
             {isAddingExpense && (
-              <ExpenseForm members={trip.members} currentUserId={session?.user?.id} onAdd={handleAddExpense} onCancel={() => setIsAddingExpense(false)} />
+              <ExpenseForm members={trip.members} currentUserId={session?.user?.id} onSubmit={handleAddExpense} onCancel={() => setIsAddingExpense(false)} />
             )}
 
             {settlements.length > 0 && (
@@ -381,36 +427,54 @@ export default function TripDetailClient({
                 </Card>
               ) : (
                 expenses.map((exp) => (
-                  <Card key={exp.id} className="border-none shadow-sm hover:shadow-md transition-all rounded-2xl group overflow-hidden">
-                    <CardContent className="p-0 flex items-center">
-                      <div className="bg-indigo-50 p-6 flex flex-col items-center justify-center min-w-[100px]">
-                        <span className="text-[10px] font-black text-indigo-400 uppercase">{new Date(exp.date).toLocaleDateString("ja-JP", { month: "short" })}</span>
-                        <span className="text-xl font-black text-indigo-600">{new Date(exp.date).getDate()}</span>
-                      </div>
-                      <div className="flex-1 p-6 flex justify-between items-center">
-                        <div>
-                          <h4 className="font-black text-gray-800 text-lg mb-1">{exp.description}</h4>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-[10px] font-bold py-0 h-5 border-gray-200 text-gray-500">
-                              支払者: {exp.paidBy?.name || exp.paidBy?.email.split('@')[0]}
-                            </Badge>
-                            <span className="text-[10px] font-bold text-gray-300">{exp.participants.length}人の割り勘</span>
+                  <div key={exp.id}>
+                    {editingExpenseId === exp.id ? (
+                      <ExpenseForm
+                        members={trip.members}
+                        currentUserId={session?.user?.id}
+                        initialData={exp}
+                        mode="edit"
+                        onSubmit={(data) => handleUpdateExpense(exp.id, data)}
+                        onCancel={() => setEditingExpenseId(null)}
+                      />
+                    ) : (
+                      <Card className="border-none shadow-sm hover:shadow-md transition-all rounded-2xl group overflow-hidden">
+                        <CardContent className="p-0 flex items-center">
+                          <div className="bg-indigo-50 p-6 flex flex-col items-center justify-center min-w-[100px]">
+                            <span className="text-[10px] font-black text-indigo-400 uppercase">{new Date(exp.date).toLocaleDateString("ja-JP", { month: "short" })}</span>
+                            <span className="text-xl font-black text-indigo-600">{new Date(exp.date).getDate()}</span>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-6">
-                          <div className="text-right">
-                            <div className="text-2xl font-black text-gray-900 tracking-tighter">¥{exp.amount.toLocaleString()}</div>
-                            <div className="text-[10px] font-bold text-gray-400">一人あたり ¥{Math.round(exp.amount / exp.participants.length).toLocaleString()}</div>
+                          <div className="flex-1 p-6 flex justify-between items-center">
+                            <div>
+                              <h4 className="font-black text-gray-800 text-lg mb-1">{exp.description}</h4>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-[10px] font-bold py-0 h-5 border-gray-200 text-gray-500">
+                                  支払者: {exp.paidBy?.name || exp.paidBy?.email.split('@')[0]}
+                                </Badge>
+                                <span className="text-[10px] font-bold text-gray-300">{exp.participants.length}人の割り勘</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <div className="text-right">
+                                <div className="text-2xl font-black text-gray-900 tracking-tighter">¥{exp.amount.toLocaleString()}</div>
+                                <div className="text-[10px] font-bold text-gray-400">一人あたり ¥{Math.round(exp.amount / exp.participants.length).toLocaleString()}</div>
+                              </div>
+                              {isMember && (
+                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                                  <Button onClick={() => setEditingExpenseId(exp.id)} variant="ghost" size="icon" className="text-gray-200 hover:text-indigo-500 hover:bg-indigo-50">
+                                    <Edit2 size={18} />
+                                  </Button>
+                                  <Button onClick={() => handleDeleteExpense(exp.id)} variant="ghost" size="icon" className="text-gray-200 hover:text-red-500 hover:bg-red-50">
+                                    <Trash2 size={18} />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          {isMember && (
-                            <Button onClick={() => handleDeleteExpense(exp.id)} variant="ghost" size="icon" className="text-gray-200 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
-                              <Trash2 size={18} />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
                 ))
               )}
             </div>
