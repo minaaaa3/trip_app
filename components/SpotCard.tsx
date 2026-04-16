@@ -9,6 +9,7 @@ interface SpotCardProps {
   spot: Spot;
   onDelete: (id: string) => void;
   onUpdate: (id: string, data: Partial<Spot>) => Promise<void>;
+  isMember?: boolean;
 }
 
 const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string; bgColor: string }> = {
@@ -19,7 +20,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string;
   OTHER: { label: "その他", icon: MoreHorizontal, color: "text-gray-600", bgColor: "bg-gray-100" },
 };
 
-export default function SpotCard({ spot, onDelete, onUpdate }: SpotCardProps) {
+export default function SpotCard({ spot, onDelete, onUpdate, isMember = false }: SpotCardProps) {
   const [photos, setPhotos] = useState<Photo[]>(spot.photos || []);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
@@ -119,22 +120,24 @@ export default function SpotCard({ spot, onDelete, onUpdate }: SpotCardProps) {
               </p>
             )}
           </div>
-          <div className="flex gap-1">
-            <button
-              onClick={() => setIsEditing(true)}
-              className="text-gray-300 hover:text-indigo-500 p-2 transition-colors"
-              title="編集"
-            >
-              <Edit2 size={18} />
-            </button>
-            <button
-              onClick={() => onDelete(spot.id)}
-              className="text-gray-300 hover:text-red-500 p-2 transition-colors"
-              title="削除"
-            >
-              <Trash2 size={18} />
-            </button>
-          </div>
+          {isMember && (
+            <div className="flex gap-1">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="text-indigo-400 hover:text-indigo-600 p-2 transition-colors"
+                title="編集"
+              >
+                <Edit2 size={18} />
+              </button>
+              <button
+                onClick={() => onDelete(spot.id)}
+                className="text-gray-300 hover:text-red-500 p-2 transition-colors"
+                title="削除"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
+          )}
         </div>
 
         {spot.url && (

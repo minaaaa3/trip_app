@@ -38,6 +38,8 @@ export default function TripDetailClient({
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
   const [isCopying, setIsCopying] = useState(false);
   const [isGeneratingToken, setIsGeneratingToken] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(initialTrip.title);
   
   // スケジュール管理用のステート
   const [activeDay, setActiveDay] = useState<number | "all">(0); // 0は未定
@@ -45,6 +47,30 @@ export default function TripDetailClient({
   const myMembership = trip.members.find((m) => m.userId === session?.user?.id);
   const isOwner = myMembership?.role === "OWNER";
   const isMember = !!myMembership;
+
+  const handleUpdateTripTitle = async () => {
+    if (!editedTitle.trim() || editedTitle === trip.title) {
+      setIsEditingTitle(false);
+      setEditedTitle(trip.title);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/trips/${trip.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: editedTitle }),
+      });
+      if (res.ok) {
+        const updatedTrip = await res.json();
+        setTrip(prev => ({ ...prev, title: updatedTrip.title }));
+        setIsEditingTitle(false);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("タイトルの更新に失敗しました。");
+    }
+  };
 
   // 精算アルゴリズム
   const settlements = useMemo(() => {
@@ -245,9 +271,35 @@ export default function TripDetailClient({
                   {new Date(trip.createdAt).toLocaleDateString("ja-JP")} 作成
                 </span>
               </div>
-              <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-4">
-                {trip.title}
-              </h1>
+              
+              {isEditingTitle ? (
+                <div className="flex items-center gap-2 mb-4">
+                  <input
+                    type="text"
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    className="text-4xl font-black text-gray-900 tracking-tight bg-gray-50 border-b-2 border-indigo-500 focus:outline-none w-full max-w-xl"
+                    autoFocus
+                    onBlur={handleUpdateTripTitle}
+                    onKeyDown={(e) => e.key === "Enter" && handleUpdateTripTitle()}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 mb-4 group">
+                  <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+                    {trip.title}
+                  </h1>
+                  {isMember && (
+                    <button 
+                      onClick={() => setIsEditingTitle(true)}
+                      className="text-gray-300 hover:text-indigo-500 transition-colors p-1"
+                    >
+                      <Edit2 size={24} />
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2 mr-2">
                   {trip.members.map((m) => (
@@ -368,7 +420,7 @@ export default function TripDetailClient({
                 </Card>
               ) : (
                 filteredSpots.map((spot) => (
-                  <SpotCard key={spot.id} spot={spot} onDelete={handleDeleteSpot} onUpdate={handleUpdateSpot} />
+                  <SpotCard key={spot.id} spot={spot} onDelete={handleDeleteSpot} onUpdate={handleUpdateSpot} isMember={isMember} />
                 ))
               )}
             </div>

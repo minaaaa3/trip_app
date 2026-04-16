@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { auth } from "@/auth";
 
 export async function GET(
   // 2. request パラメータの型を 'NextRequest' に変更する
@@ -40,12 +41,30 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  // こちらもお客様のスタイルに合わせます
   { params }: { params: Promise<{ tripId: string }> }
 ) {
   const { tripId } = await params;
 
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // メンバーチェック
+    const membership = await prisma.tripMember.findUnique({
+      where: {
+        tripId_userId: {
+          tripId: tripId,
+          userId: session.user.id,
+        },
+      },
+    });
+
+    if (!membership) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     // 1. リクエストボディをJSONとしてパース
     const body = await request.json();
     const { title } = body;
@@ -62,7 +81,6 @@ export async function PUT(
     }
 
     // 3. データベースの更新
-    // `prisma.trip.update` は、対象が見つからない場合に P2025 エラーをスローします
     const updatedTrip = await prisma.trip.update({
       where: {
         id: tripId,
