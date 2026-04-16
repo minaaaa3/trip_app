@@ -72,5 +72,3 @@
    - `EMAIL_SERVER_PASSWORD` は、Gmailの「アプリパスワード」を使用してください。
 3. `npx prisma generate` をビルドコマンドに含める（現在の設定で自動化済み）。
 
----
-Built with ❤️ for better travel experiences.
