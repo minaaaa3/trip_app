@@ -2,20 +2,21 @@ import { signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 
-export default function LoginPage() {
-  async function loginAction(formData: FormData) {
-    "use server";
-    try {
-      await signIn("nodemailer", formData);
-    } catch (error) {
-      if (isRedirectError(error)) {
-        throw error;
-      }
-      console.error("Sign in error:", error);
+// コンポーネントの外側でActionを定義することでCSRFチェックを安定させます
+async function loginAction(formData: FormData) {
+  "use server";
+  try {
+    await signIn("nodemailer", formData);
+  } catch (error) {
+    if (isRedirectError(error)) {
       throw error;
     }
+    console.error("Sign in error:", error);
+    throw error;
   }
+}
 
+export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-64px)] p-6">
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
