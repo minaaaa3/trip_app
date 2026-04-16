@@ -6,9 +6,7 @@ export default function LoginPage() {
   async function loginAction(formData: FormData) {
     "use server";
     try {
-      const email = formData.get("email") as string;
-      if (!email) return;
-      await signIn("nodemailer", { email, callbackUrl: "/" });
+      await signIn("nodemailer", formData);
     } catch (error) {
       if (isRedirectError(error)) {
         throw error;
