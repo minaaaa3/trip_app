@@ -3,15 +3,9 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./lib/prisma";
 import Nodemailer from "next-auth/providers/nodemailer";
 
-const providers = [];
-
-// 個別の環境変数が揃っている場合にプロバイダーを追加
-if (
-  process.env.EMAIL_SERVER_USER &&
-  process.env.EMAIL_SERVER_PASSWORD &&
-  process.env.EMAIL_FROM
-) {
-  providers.push(
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  providers: [
     Nodemailer({
       server: {
         host: "smtp.gmail.com",
@@ -22,16 +16,13 @@ if (
         },
       },
       from: process.env.EMAIL_FROM,
-    })
-  );
-}
-
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  providers: providers,
+    }),
+  ],
   pages: {
     signIn: "/login",
   },
+  // 本番環境のエラーログを確認しやすくするため、一時的にtrueに設定
+  debug: true,
   callbacks: {
     session({ session, user }) {
       if (session.user) {
