@@ -34,9 +34,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // ログイン後のURLがbaseUrl（サイトURL）を含む場合はそのURLへ、それ以外はトップページへ
-      if (url.startsWith(baseUrl)) return url;
-      else if (url.startsWith("/")) return new URL(url, baseUrl).toString();
+      // ログイン後は必ずトップページにリダイレクトさせる
       return baseUrl;
     },
   },
