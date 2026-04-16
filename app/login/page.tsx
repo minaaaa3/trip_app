@@ -1,22 +1,28 @@
-import { signIn } from "@/auth";
-import { Button } from "@/components/ui/button";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
+"use client";
 
-// コンポーネントの外側でActionを定義することでCSRFチェックを安定させます
-async function loginAction(formData: FormData) {
-  "use server";
-  try {
-    await signIn("nodemailer", formData);
-  } catch (error) {
-    if (isRedirectError(error)) {
-      throw error;
-    }
-    console.error("Sign in error:", error);
-    throw error;
-  }
-}
+import { signIn } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await signIn("nodemailer", { 
+        email, 
+        callbackUrl: "/",
+      });
+    } catch (error) {
+      console.error("Sign in error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-64px)] p-6">
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
@@ -27,8 +33,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form action={loginAction} className="space-y-6">
-          <input type="hidden" name="callbackUrl" value="/" />
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
               htmlFor="email"
@@ -40,16 +45,20 @@ export default function LoginPage() {
               type="email"
               name="email"
               id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              disabled={loading}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all disabled:opacity-50"
             />
           </div>
           <Button
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 text-lg font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98]"
+            disabled={loading}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 text-lg font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98] disabled:opacity-50"
           >
-            ログインリンクを送信
+            {loading ? "送信中..." : "ログインリンクを送信"}
           </Button>
         </form>
 
