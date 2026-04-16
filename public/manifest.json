@@ -4,10 +4,12 @@
   "description": "旅の計画を共有し、精算を簡単に。旅のしおり・精算アプリ。",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["standalone", "window-controls-overlay"],
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",
   "orientation": "portrait",
   "scope": "/",
+  "id": "/",
   "icons": [
     {
       "src": "/next.svg",
@@ -21,5 +23,9 @@
       "type": "image/svg+xml",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "categories": ["travel", "finance"],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
 }
