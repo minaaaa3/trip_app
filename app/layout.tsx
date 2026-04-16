@@ -14,13 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trip Planner",
-  description: "Share your trip plans with everyone",
+  title: "Trip Planner | 旅のしおり・精算アプリ",
+  description: "旅行の計画を共有し、旅先での精算・割り勘をシンプルに解決。スマホで持ち歩ける旅のしおり。",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Trip Planner",
+    title: "TripPlan",
   },
   formatDetection: {
     telephone: false,
