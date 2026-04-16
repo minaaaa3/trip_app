@@ -491,33 +491,33 @@ export default function TripDetailClient({
                       />
                     ) : (
                       <Card className="border-none shadow-sm hover:shadow-md transition-all rounded-2xl group overflow-hidden">
-                        <CardContent className="p-0 flex items-center">
-                          <div className="bg-indigo-50 p-6 flex flex-col items-center justify-center min-w-[100px]">
+                        <CardContent className="p-0 flex flex-row items-stretch">
+                          <div className="bg-indigo-50 p-3 md:p-6 flex flex-col items-center justify-center min-w-[70px] md:min-w-[100px]">
                             <span className="text-[10px] font-black text-indigo-400 uppercase">{new Date(exp.date).toLocaleDateString("ja-JP", { month: "short" })}</span>
-                            <span className="text-xl font-black text-indigo-600">{new Date(exp.date).getDate()}</span>
+                            <span className="text-lg md:text-xl font-black text-indigo-600">{new Date(exp.date).getDate()}</span>
                           </div>
-                          <div className="flex-1 p-6 flex justify-between items-center">
-                            <div>
-                              <h4 className="font-black text-gray-800 text-lg mb-1">{exp.description}</h4>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="text-[10px] font-bold py-0 h-5 border-gray-200 text-gray-500">
+                          <div className="flex-1 p-4 md:p-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-black text-gray-800 text-base md:text-lg mb-1 truncate">{exp.description}</h4>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Badge variant="outline" className="text-[10px] font-bold py-0 h-5 border-gray-200 text-gray-500 max-w-[150px] truncate">
                                   支払者: {exp.paidBy?.name || exp.paidBy?.email.split('@')[0]}
                                 </Badge>
                                 <span className="text-[10px] font-bold text-gray-300">{exp.participants.length}人の割り勘</span>
                               </div>
                             </div>
-                            <div className="flex items-center gap-4">
-                              <div className="text-right">
-                                <div className="text-2xl font-black text-gray-900 tracking-tighter">¥{exp.amount.toLocaleString()}</div>
+                            <div className="flex items-center justify-between md:justify-end gap-4">
+                              <div className="text-left md:text-right">
+                                <div className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter">¥{exp.amount.toLocaleString()}</div>
                                 <div className="text-[10px] font-bold text-gray-400">一人あたり ¥{Math.round(exp.amount / exp.participants.length).toLocaleString()}</div>
                               </div>
                               {isMember && (
-                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                  <Button onClick={() => setEditingExpenseId(exp.id)} variant="ghost" size="icon" className="text-gray-200 hover:text-indigo-500 hover:bg-indigo-50">
-                                    <Edit2 size={18} />
+                                <div className="flex gap-1 md:opacity-0 md:group-hover:opacity-100 transition-all">
+                                  <Button onClick={() => setEditingExpenseId(exp.id)} variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10 text-gray-400 md:text-gray-200 hover:text-indigo-500 hover:bg-indigo-50">
+                                    <Edit2 className="h-4 w-4 md:h-[18px] md:w-[18px]" />
                                   </Button>
-                                  <Button onClick={() => handleDeleteExpense(exp.id)} variant="ghost" size="icon" className="text-gray-200 hover:text-red-500 hover:bg-red-50">
-                                    <Trash2 size={18} />
+                                  <Button onClick={() => handleDeleteExpense(exp.id)} variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10 text-gray-400 md:text-gray-200 hover:text-red-500 hover:bg-red-50">
+                                    <Trash2 className="h-4 w-4 md:h-[18px] md:w-[18px]" />
                                   </Button>
                                 </div>
                               )}
