@@ -23,6 +23,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   pages: {
     signIn: "/login",
+    verifyRequest: "/login/verify",
   },
   callbacks: {
     async session({ session, user }) {
