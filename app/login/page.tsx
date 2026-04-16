@@ -1,5 +1,6 @@
 import { signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export default function LoginPage() {
   return (
@@ -15,7 +16,15 @@ export default function LoginPage() {
         <form
           action={async (formData) => {
             "use server";
-            await signIn("nodemailer", formData);
+            try {
+              await signIn("nodemailer", formData);
+            } catch (error) {
+              if (isRedirectError(error)) {
+                throw error;
+              }
+              console.error("Sign in error:", error);
+              throw error;
+            }
           }}
           className="space-y-6"
         >
