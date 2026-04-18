@@ -127,14 +127,14 @@ export default function SpotCard({ spot, onDelete, onUpdate, isMember = false }:
                 className="text-indigo-400 hover:text-indigo-600 p-2 transition-colors"
                 title="編集"
               >
-                <Edit2 size={18} />
+                <Edit2 size={20} />
               </button>
               <button
                 onClick={() => onDelete(spot.id)}
-                className="text-gray-300 hover:text-red-500 p-2 transition-colors"
+                className="text-gray-400 hover:text-red-500 p-2 transition-colors"
                 title="削除"
               >
-                <Trash2 size={18} />
+                <Trash2 size={20} />
               </button>
             </div>
           )}

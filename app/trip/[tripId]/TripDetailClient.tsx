@@ -278,7 +278,7 @@ export default function TripDetailClient({
                     type="text"
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
-                    className="text-4xl font-black text-gray-900 tracking-tight bg-gray-50 border-b-2 border-indigo-500 focus:outline-none w-full max-w-xl"
+                    className="text-2xl md:text-4xl font-black text-gray-900 tracking-tight bg-white border-b-2 border-indigo-500 focus:outline-none w-full max-w-xl py-1"
                     autoFocus
                     onBlur={handleUpdateTripTitle}
                     onKeyDown={(e) => e.key === "Enter" && handleUpdateTripTitle()}
@@ -512,12 +512,12 @@ export default function TripDetailClient({
                                 <div className="text-[10px] font-bold text-gray-400">一人あたり ¥{Math.round(exp.amount / exp.participants.length).toLocaleString()}</div>
                               </div>
                               {isMember && (
-                                <div className="flex gap-1 md:opacity-0 md:group-hover:opacity-100 transition-all">
-                                  <Button onClick={() => setEditingExpenseId(exp.id)} variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10 text-gray-400 md:text-gray-200 hover:text-indigo-500 hover:bg-indigo-50">
-                                    <Edit2 className="h-4 w-4 md:h-[18px] md:w-[18px]" />
+                                <div className="flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition-all">
+                                  <Button onClick={() => setEditingExpenseId(exp.id)} variant="ghost" size="icon" className="h-10 w-10 text-gray-500 md:text-gray-200 hover:text-indigo-500 hover:bg-indigo-50">
+                                    <Edit2 className="h-5 w-5 md:h-[18px] md:w-[18px]" />
                                   </Button>
-                                  <Button onClick={() => handleDeleteExpense(exp.id)} variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10 text-gray-400 md:text-gray-200 hover:text-red-500 hover:bg-red-50">
-                                    <Trash2 className="h-4 w-4 md:h-[18px] md:w-[18px]" />
+                                  <Button onClick={() => handleDeleteExpense(exp.id)} variant="ghost" size="icon" className="h-10 w-10 text-gray-500 md:text-gray-200 hover:text-red-500 hover:bg-red-50">
+                                    <Trash2 className="h-5 w-5 md:h-[18px] md:w-[18px]" />
                                   </Button>
                                 </div>
                               )}

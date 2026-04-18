@@ -90,7 +90,7 @@ export default function UserProfileHeader({ initialName, email }: UserProfileHea
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white rounded-2xl outline-none transition-all font-bold text-lg"
+                    className="w-full px-5 py-4 bg-white border-2 border-gray-100 focus:border-indigo-500 rounded-2xl outline-none transition-all font-bold text-lg text-gray-900"
                     placeholder="例: たろう"
                     autoFocus
                   />

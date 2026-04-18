@@ -76,7 +76,7 @@ export default function ExpenseForm({
               placeholder="3000"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg bg-white text-gray-900"
               required
             />
           </div>
@@ -87,7 +87,7 @@ export default function ExpenseForm({
               placeholder="ランチ代、タクシーなど"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900 text-base"
               required
             />
           </div>
@@ -98,7 +98,7 @@ export default function ExpenseForm({
           <select
             value={paidById}
             onChange={(e) => setPaidById(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900 text-base"
           >
             {members.map((m) => (
               <option key={m.userId} value={m.userId}>

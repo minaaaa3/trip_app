@@ -98,7 +98,7 @@ export default function SpotForm({
             placeholder="例: 清水寺、リッツカールトン京都"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900 text-base"
             required
           />
         </div>
@@ -113,7 +113,7 @@ export default function SpotForm({
                 max="30"
                 value={formData.day}
                 onChange={(e) => setFormData({ ...formData, day: parseInt(e.target.value) || 0 })}
-                className="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900 text-base"
               />
               <span className="text-sm text-gray-500">
                 {formData.day === 0 ? "未定" : `${formData.day}日目`}
@@ -127,7 +127,7 @@ export default function SpotForm({
               placeholder="Google Mapsなど"
               value={formData.url}
               onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900 text-base"
             />
           </div>
         </div>
@@ -138,7 +138,7 @@ export default function SpotForm({
             placeholder="見どころや予約時間など"
             value={formData.memo}
             onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 h-24 resize-none"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 h-24 resize-none bg-white text-gray-900 text-base"
           />
         </div>
 

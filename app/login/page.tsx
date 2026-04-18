@@ -52,7 +52,7 @@ function LoginForm() {
             placeholder="you@example.com"
             required
             disabled={loading}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all disabled:opacity-50"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all disabled:opacity-50 bg-white text-gray-900 text-base"
           />
         </div>
         <Button
